@@ -14,7 +14,7 @@ def login():
     if st.button("Iniciar sesión"):
         if user == "jp" and password == "1234":
             st.session_state['logged_in'] = True
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("Usuario o contraseña incorrectos")
 
@@ -191,4 +191,4 @@ st.download_button("📥 Descargar tabla filtrada", csv, "franquicias_filtradas.
 st.markdown("---")
 if st.button("🔓 Cerrar sesión"):
     st.session_state.clear()
-    st.experimental_rerun()
+    st.rerun()
