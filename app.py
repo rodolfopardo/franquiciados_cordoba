@@ -82,10 +82,15 @@ pie_df = pd.DataFrame({
     'Cantidad': [marcas_franquiciadas, marcas_no_franquiciadas]
 })
 fig_pie = px.pie(pie_df, names='Tipo', values='Cantidad', title='Distribución de marcas únicas')
+fig_pie.update_layout(
+    height=500,  # Podés ajustar a 600 o más si querés
+    title_font_size=20,
+    legend_font_size=14
+)
 st.plotly_chart(fig_pie, use_container_width=True)
 
 # --- FILTROS ---
-st.markdown("###vFiltros")
+st.markdown("### Filtros")
 
 tipo_cluster = st.radio("¿Qué tipo de negocios te gustaría analizar?", ['Franquiciados', 'No franquiciados'])
 es_franquiciado = True if tipo_cluster == 'Franquiciados' else False
