@@ -196,9 +196,12 @@ if 'keyword' in df_filtrado.columns:
 
 
 # --- TABLA FINAL CON FILTROS APLICADOS ---
-st.markdown("### 📋 Tabla final con todos los datos")
-st.dataframe(df_filtrado, use_container_width=True)
-csv = df_filtrado.to_csv(index=False).encode('utf-8')
+st.markdown("### 📋 Tabla final con todos los datos (sin duplicados)")
+
+df_distinto = df_filtrado.drop_duplicates()
+st.dataframe(df_distinto, use_container_width=True)
+
+csv = df_distinto.to_csv(index=False).encode('utf-8')
 st.download_button("📥 Descargar tabla filtrada", csv, "franquicias_filtradas.csv", "text/csv")
 
 # --- LOGOUT ---
