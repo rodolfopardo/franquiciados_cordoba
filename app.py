@@ -31,7 +31,7 @@ with col_title:
 
 @st.cache_data
 def cargar_datos():
-    df = pd.read_csv("franquiciados.csv")
+    df = pd.read_csv("https://drive.google.com/uc?id=162YQgYfv4cbL3yudA-hNysDp3V4MqUgI")
     df['title'] = df['title'].astype(str)
     
 
