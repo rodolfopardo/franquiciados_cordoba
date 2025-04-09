@@ -68,7 +68,7 @@ if registros_fuera_cordoba > 0:
     st.warning(f"⚠️ Se eliminaron {registros_fuera_cordoba} registros que no pertenecen a Córdoba.")
 
 # --- PANEL GENERAL ---
-st.markdown("### 🧮 Panel General")
+st.markdown("### Panel General")
 
 total_filas = len(df)
 total_columnas = df.shape[1]
@@ -122,7 +122,7 @@ else:
     df_filtrado = df_filtrado_tipo.copy()
 
 # --- SECCIÓN TOP 10 ---
-st.markdown("### 🏆 Top 10 negocios destacados")
+st.markdown("### Top 10 negocios destacados")
 
 if es_franquiciado:
     top_direcciones = (
@@ -196,7 +196,7 @@ if 'keyword' in df_filtrado.columns:
 
 
 # --- TABLA FINAL CON FILTROS APLICADOS ---
-st.markdown("### 📋 Tabla final con todos los datos (sin direcciones duplicadas)")
+st.markdown("### 📋 Tabla final con todos los datos")
 
 df_final = df_filtrado.drop_duplicates(subset=['addressPreview'])
 
