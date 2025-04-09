@@ -5,15 +5,21 @@ import plotly.express as px
 # --- CONFIGURACIÓN INICIAL ---
 st.set_page_config(page_title="Observatorio de Franquicias – Córdoba", layout="wide")
 
-# --- LOGIN SIMPLE ---
+USUARIOS_VALIDOS = {
+    "rodolfopardo": "1234",
+    "jp": "1234",
+    "brian": "1234"
+}
+
 def login():
-    st.image("search.mas-logo-blanco.png", width=200)  # Logo arriba
+    st.image("search.mas-logo-blanco.png", width=200)
     st.title("🔐 Observatorio de Franquicias – Córdoba")
     user = st.text_input("Usuario")
     password = st.text_input("Contraseña", type="password")
     if st.button("Iniciar sesión"):
-        if user == "jp" and password == "1234":
+        if user in USUARIOS_VALIDOS and password == USUARIOS_VALIDOS[user]:
             st.session_state['logged_in'] = True
+            st.session_state['user'] = user
             st.rerun()
         else:
             st.error("Usuario o contraseña incorrectos")
@@ -28,6 +34,9 @@ with col_logo:
     st.image("search.mas-logo-blanco.png", width=120)
 with col_title:
     st.title("📊 Observatorio de Franquicias – Córdoba")
+
+st.sidebar.markdown(f"👤 Sesión iniciada como: `{st.session_state.get('user', '')}`")
+
 
 @st.cache_data
 def cargar_datos():
