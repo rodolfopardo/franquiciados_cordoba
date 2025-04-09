@@ -196,9 +196,9 @@ if 'keyword' in df_filtrado.columns:
 
 
 # --- TABLA FINAL CON FILTROS APLICADOS ---
-st.markdown("### 📋 Tabla final con todos los datos (sin duplicados)")
+st.markdown("### 📋 Tabla final con todos los datos (sin direcciones duplicadas)")
 
-df_final = df_filtrado.drop_duplicates()  # 💡 Eliminar filas completamente duplicadas
+df_final = df_filtrado.drop_duplicates(subset=['addressPreview'])
 
 st.dataframe(df_final, use_container_width=True)
 
