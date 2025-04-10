@@ -115,9 +115,9 @@ marcas_disponibles = (
 )
 
 
-marca_seleccionada = st.selectbox("Seleccioná una marca", ["Todas"] + marcas_disponibles)
-if marca_seleccionada != "Todas":
-    df_filtrado = df_filtrado_tipo[df_filtrado_tipo['title'] == marca_seleccionada]
+marcas_seleccionadas = st.multiselect("Seleccioná una o más marcas", opciones := marcas_disponibles, default=[])
+if marcas_seleccionadas:
+    df_filtrado = df_filtrado_tipo[df_filtrado_tipo['title'].isin(marcas_seleccionadas)]
 else:
     df_filtrado = df_filtrado_tipo.copy()
 
@@ -134,10 +134,10 @@ keywords_disponibles = (
     .tolist()
 )
 
-keyword_seleccionada = st.selectbox("Filtrar por keyword", ["Todas"] + keywords_disponibles)
+keywords_seleccionadas = st.multiselect("Filtrar por una o más keywords", keywords_disponibles, default=[])
+if keywords_seleccionadas:
+    df_filtrado = df_filtrado[df_filtrado['keyword'].str.lower().str.strip().isin(keywords_seleccionadas)]
 
-if keyword_seleccionada != "Todas":
-    df_filtrado = df_filtrado[df_filtrado['keyword'].str.lower().str.strip() == keyword_seleccionada]
 
 # --- SECCIÓN TOP 10 ---
 st.markdown("### Top 10 negocios destacados")
@@ -150,8 +150,9 @@ if es_franquiciado:
         .sort_values(by='cantidad_direcciones', ascending=False)
         .head(10)
     )
-    st.markdown("#### 🏪 Franquicias con más direcciones")
-    st.dataframe(top_direcciones[['title', 'cantidad_direcciones']], use_container_width=True)
+    st.markdown("#### 🏪 Franquicias con más apariciones")
+    top_direcciones.rename(columns={'title': 'Marca', 'cantidad_direcciones': 'Cantidad de apariciones'}, inplace=True)
+    st.dataframe(top_direcciones, use_container_width=True)
 
 else:
     if 'reviews' in df_filtrado.columns and 'stars' in df_filtrado.columns:
@@ -172,7 +173,9 @@ else:
                 .head(10)
             )
             st.markdown("#### 🌟 Negocios no franquiciados con más reviews")
-            st.dataframe(top_reviews[['title', 'reviews', 'stars']], use_container_width=True)
+            top_reviews.rename(columns={'title': 'Marca'}, inplace=True)
+            st.dataframe(top_reviews[['Marca', 'reviews', 'stars']], use_container_width=True)
+
         else:
             st.info("No hay datos válidos de 'reviews' y 'stars' para generar el ranking.")
     else:
@@ -183,40 +186,71 @@ from collections import Counter
 
 st.markdown("### 🌞 Visualización jerárquica de keywords")
 
-if 'keyword' in df_filtrado.columns:
-    keywords = df_filtrado['keyword'].dropna().astype(str).str.strip().str.lower()
-    top_keywords = Counter(keywords).most_common(10)
-    
-    if top_keywords:
-        labels = [kw for kw, _ in top_keywords]
-        values = [v for _, v in top_keywords]
-        parents = [''] * len(labels)  # Raíz vacía
+if 'keyword' in df_filtrado.columns and not df_filtrado.empty:
+    if marcas_seleccionadas:  # Si hay marcas seleccionadas, mostrar keywords
+        keywords = df_filtrado['keyword'].dropna().astype(str).str.strip().str.lower()
+        top_keywords = Counter(keywords).most_common(10)
 
-        fig = go.Figure(go.Sunburst(
-            labels=labels,
-            parents=parents,
-            values=values,
-            branchvalues="total",
-            textinfo="label+value+percent entry",
-            insidetextorientation='radial',
-            hovertemplate='<b>%{label}</b><br>Frecuencia: %{value}<br>%{percentEntry:.1%}',
-        ))
+        if top_keywords:
+            labels = [kw for kw, _ in top_keywords]
+            values = [v for _, v in top_keywords]
+            parents = [''] * len(labels)
 
-        fig.update_layout(
-            title="Top 10 keywords más frecuentes",
-            margin=dict(t=50, l=0, r=0, b=0),
-            height=550,
-            uniformtext=dict(minsize=12, mode='show')
-        )
+            fig = go.Figure(go.Sunburst(
+                labels=labels,
+                parents=parents,
+                values=values,
+                branchvalues="total",
+                textinfo="label+value+percent entry",
+                insidetextorientation='radial',
+                hovertemplate='<b>%{label}</b><br>Frecuencia: %{value}<br>%{percentEntry:.1%}',
+            ))
+            fig.update_layout(
+                title="Top 10 keywords más frecuentes",
+                margin=dict(t=50, l=0, r=0, b=0),
+                height=550,
+                uniformtext=dict(minsize=12, mode='show')
+            )
+            st.plotly_chart(fig, use_container_width=True)
 
-        st.plotly_chart(fig, use_container_width=True)
+    elif keywords_seleccionadas:  # Si hay keywords pero no marcas, mostrar marcas como sunburst
+        marcas = df_filtrado['title'].dropna().astype(str).str.strip().str.lower()
+        top_marcas = Counter(marcas).most_common(10)
 
+        if top_marcas:
+            labels = [m for m, _ in top_marcas]
+            values = [v for _, v in top_marcas]
+            parents = [''] * len(labels)
+
+            fig = go.Figure(go.Sunburst(
+                labels=labels,
+                parents=parents,
+                values=values,
+                branchvalues="total",
+                textinfo="label+value+percent entry",
+                insidetextorientation='radial',
+                hovertemplate='<b>%{label}</b><br>Frecuencia: %{value}<br>%{percentEntry:.1%}',
+            ))
+            fig.update_layout(
+                title="Top 10 marcas asociadas a las keywords seleccionadas",
+                margin=dict(t=50, l=0, r=0, b=0),
+                height=550,
+                uniformtext=dict(minsize=12, mode='show')
+            )
+            st.plotly_chart(fig, use_container_width=True)
 
 
 # --- TABLA FINAL CON FILTROS APLICADOS ---
 st.markdown("### 📋 Tabla final con todos los datos")
 
-df_final = df_filtrado.drop_duplicates(subset=['addressPreview'])
+columnas_a_excluir = [
+    'client', 'accountName', 'locationId', 'locationName',
+    'locationCity', 'locationState', 'type', 'createdAt'
+]
+columnas_presentes = [col for col in columnas_a_excluir if col in df_filtrado.columns]
+
+df_final = df_filtrado.drop_duplicates(subset=['addressPreview']).drop(columns=columnas_presentes, errors='ignore')
+
 
 st.dataframe(df_final, use_container_width=True)
 
