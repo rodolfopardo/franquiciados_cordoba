@@ -181,7 +181,7 @@ else:
 import plotly.graph_objects as go
 from collections import Counter
 
-st.markdown("### 🌞 Visualización jerárquica de keywords (Sunburst optimizado)")
+st.markdown("### 🌞 Visualización jerárquica de keywords")
 
 if 'keyword' in df_filtrado.columns:
     keywords = df_filtrado['keyword'].dropna().astype(str).str.strip().str.lower()
