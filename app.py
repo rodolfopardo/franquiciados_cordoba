@@ -121,6 +121,24 @@ if marca_seleccionada != "Todas":
 else:
     df_filtrado = df_filtrado_tipo.copy()
 
+# --- FILTRO POR KEYWORD ---
+keywords_disponibles = (
+    df_filtrado['keyword']
+    .dropna()
+    .astype(str)
+    .str.strip()
+    .str.lower()
+    .value_counts()
+    .sort_values(ascending=False)
+    .index
+    .tolist()
+)
+
+keyword_seleccionada = st.selectbox("Filtrar por keyword", ["Todas"] + keywords_disponibles)
+
+if keyword_seleccionada != "Todas":
+    df_filtrado = df_filtrado[df_filtrado['keyword'].str.lower().str.strip() == keyword_seleccionada]
+
 # --- SECCIÓN TOP 10 ---
 st.markdown("### Top 10 negocios destacados")
 
